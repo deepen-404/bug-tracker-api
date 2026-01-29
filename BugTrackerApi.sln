@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BugTrackerApi", "BugTrackerApi.csproj", "{A57055E0-F889-4DCD-AE6D-102D7E224458}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A57055E0-F889-4DCD-AE6D-102D7E224458}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A57055E0-F889-4DCD-AE6D-102D7E224458}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A57055E0-F889-4DCD-AE6D-102D7E224458}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A57055E0-F889-4DCD-AE6D-102D7E224458}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

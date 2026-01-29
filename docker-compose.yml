@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bugtracker-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - bugtracker-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bugtracker-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=BugTrackerDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - Jwt__Key=YourSuperSecretKeyHere32Characters!
+      - Jwt__Issuer=BugTrackerApi
+      - Jwt__Audience=BugTrackerClient
+      - Jwt__DurationInMinutes=60
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/wwwroot/uploads
+    networks:
+      - bugtracker-network
+
+volumes:
+  sqlserver_data:
+  uploads_data:
+
+networks:
+  bugtracker-network:
+    driver: bridge
