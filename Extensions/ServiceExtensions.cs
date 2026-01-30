@@ -170,7 +170,8 @@ public static class ServiceExtensions
                         "http://localhost:3000",
                         "http://localhost:5000",
                         "http://host.docker.internal:5173",
-                        "https://bugg-tracker-client.netlify.app")
+                        "https://bugg-tracker-client.netlify.app",
+                        "https://bug-tracker-client.vercel.app")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
