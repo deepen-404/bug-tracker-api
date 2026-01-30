@@ -27,12 +27,42 @@ public static class ServiceExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var connectionString = GetConnectionString(configuration);
+
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
+            options.UseNpgsql(
+                connectionString,
                 b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
         return services;
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+        Console.WriteLine($"[DB] DATABASE_URL env var: {(string.IsNullOrEmpty(databaseUrl) ? "NOT SET" : databaseUrl)}");
+
+        if (!string.IsNullOrEmpty(databaseUrl))
+        {
+            var uri = new Uri(databaseUrl);
+            var userInfo = uri.UserInfo.Split(':');
+            var host = uri.Host;
+            var port = uri.Port > 0 ? uri.Port : 5432;
+            var database = uri.AbsolutePath.TrimStart('/');
+            var username = userInfo[0];
+            var password = userInfo.Length > 1 ? userInfo[1] : "";
+
+            var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+            Console.WriteLine($"[DB] Parsed connection: Host={host};Port={port};Database={database};Username={username};Password=***");
+
+            return connectionString;
+        }
+
+        var fallback = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Database connection string not configured.");
+        Console.WriteLine($"[DB] Using appsettings connection string");
+        return fallback;
     }
 
     public static IServiceCollection AddIdentityServices(this IServiceCollection services)
@@ -139,7 +169,8 @@ public static class ServiceExtensions
                         "http://localhost:5173",
                         "http://localhost:3000",
                         "http://localhost:5000",
-                        "http://host.docker.internal:5173")
+                        "http://host.docker.internal:5173",
+                        "https://bugg-tracker-client.netlify.app")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();

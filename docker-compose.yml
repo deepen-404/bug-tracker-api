@@ -1,19 +1,19 @@
 version: '3.8'
 
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: bugtracker-sqlserver
+  postgres:
+    image: postgres:16-alpine
+    container_name: bugtracker-postgres
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
-      - MSSQL_PID=Express
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=YourStrong@Passw0rd
+      - POSTGRES_DB=BugTrackerDb
     ports:
-      - "1433:1433"
+      - "15432:5432"
     volumes:
-      - sqlserver_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -C -Q "SELECT 1" || exit 1
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -30,13 +30,13 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=BugTrackerDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=BugTrackerDb;Username=postgres;Password=YourStrong@Passw0rd
       - Jwt__Key=YourSuperSecretKeyHere32Characters!
       - Jwt__Issuer=BugTrackerApi
       - Jwt__Audience=BugTrackerClient
       - Jwt__DurationInMinutes=60
     depends_on:
-      sqlserver:
+      postgres:
         condition: service_healthy
     volumes:
       - uploads_data:/app/wwwroot/uploads
@@ -44,7 +44,7 @@ services:
       - bugtracker-network
 
 volumes:
-  sqlserver_data:
+  postgres_data:
   uploads_data:
 
 networks:

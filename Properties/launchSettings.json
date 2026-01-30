@@ -16,7 +16,8 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DATABASE_URL": "postgresql://postgres:XubIevlIrNsVkqrCdVmKeLJAJzNzkDiJ@gondola.proxy.rlwy.net:44247/railway"
       }
     },
     "https": {
